@@ -87,6 +87,7 @@
             const [apiKey, setApiKey] = useState('');
             const [showApiKey, setShowApiKey] = useState(false);
             const [showSettings, setShowSettings] = useState(false);
+            const [useProxy, setUseProxy] = useState(true); 
             
             const recetasIniciales = {
                 'Paella Valenciana': {
@@ -172,114 +173,126 @@
             };
 
             const generarIdeas = async () => {
-                if (!apiKey) {
-                    alert('Por favor, configura tu API Key de Anthropic en Ajustes');
-                    setShowSettings(true);
-                    return;
-                }
+    if (!apiKey) {
+        alert('Por favor, configura tu API Key de Anthropic en Ajustes');
+        setShowSettings(true);
+        return;
+    }
 
-                setIsGenerating(true);
-                try {
-                    const response = await fetch("https://api.anthropic.com/v1/messages", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-api-key": apiKey,
-                            "anthropic-version": "2023-06-01"
-                        },
-                        body: JSON.stringify({
-                            model: "claude-sonnet-4-20250514",
-                            max_tokens: 1000,
-                            messages: [
-                                { 
-                                    role: "user", 
-                                    content: "Dame 5 ideas de recetas típicas españolas saludables y equilibradas para la semana. Incluye variedad de platos de diferentes regiones de España. Responde SOLO con un array JSON en este formato: [{\"nombre\": \"nombre del plato\", \"tipo\": \"comida o cena\", \"descripcion\": \"breve descripción\"}]. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro." 
-                                }
-                            ],
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Error en la API');
+    setIsGenerating(true);
+    try {
+        const apiUrl = "https://api.anthropic.com/v1/messages";        
+        const finalUrl = useProxy 
+            ? `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`
+            : apiUrl;
+        const response = await fetch(finalUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": apiKey,
+                "anthropic-version": "2023-06-01"
+            },
+            body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 1000,
+                messages: [
+                    { 
+                        role: "user", 
+                        content: "Dame 5 ideas de recetas típicas españolas saludables y equilibradas para la semana. Incluye variedad de platos de diferentes regiones de España. Responde SOLO con un array JSON en este formato: [{\"nombre\": \"nombre del plato\", \"tipo\": \"comida o cena\", \"descripcion\": \"breve descripción\"}]. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro." 
                     }
+                ],
+            })
+        });
 
-                    const data = await response.json();
-                    const text = data.content.find(item => item.type === "text")?.text || "";
-                    const clean = text.replace(/```json|```/g, "").trim();
-                    const ideas = JSON.parse(clean);
-                    
-                    alert(`Ideas generadas:\n\n${ideas.map((i, idx) => `${idx + 1}. ${i.nombre} (${i.tipo})\n   ${i.descripcion}`).join('\n\n')}\n\n¡Busca estas recetas para añadirlas a tu planificador!`);
-                } catch (error) {
-                    alert('Error al generar ideas. Verifica tu API Key.');
-                }
-                setIsGenerating(false);
-            };
+        if (!response.ok) {
+            throw new Error('Error en la API');
+        }
+
+        const data = await response.json();
+        const text = data.content.find(item => item.type === "text")?.text || "";
+        const clean = text.replace(/```json|```/g, "").trim();
+        const ideas = JSON.parse(clean);
+        
+        alert(`Ideas generadas:\n\n${ideas.map((i, idx) => `${idx + 1}. ${i.nombre} (${i.tipo})\n   ${i.descripcion}`).join('\n\n')}\n\n¡Busca estas recetas para añadirlas a tu planificador!`);
+    } catch (error) {
+        alert('Error al generar ideas. Verifica tu API Key.');
+    }
+    setIsGenerating(false);
+};
 
             const buscarReceta = async () => {
-                if (!apiKey) {
-                    alert('Por favor, configura tu API Key de Anthropic en Ajustes');
-                    setShowSettings(true);
-                    return;
-                }
+    if (!apiKey) {
+        alert('Por favor, configura tu API Key de Anthropic en Ajustes');
+        setShowSettings(true);
+        return;
+    }
 
-                if (!searchQuery.trim()) {
-                    alert('Por favor, escribe el nombre de una receta');
-                    return;
-                }
+    if (!searchQuery.trim()) {
+        alert('Por favor, escribe el nombre de una receta');
+        return;
+    }
 
-                setIsSearching(true);
-                try {
-                    const response = await fetch("https://api.anthropic.com/v1/messages", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-api-key": apiKey,
-                            "anthropic-version": "2023-06-01"
-                        },
-                        body: JSON.stringify({
-                            model: "claude-sonnet-4-20250514",
-                            max_tokens: 1000,
-                            messages: [
-                                { 
-                                    role: "user", 
-                                    content: `Dame la receta completa de "${searchQuery}". Si es un plato español, dame la receta tradicional. Responde SOLO con un objeto JSON en este formato: {"nombre": "nombre del plato", "ingredientes": ["ingrediente 1", "ingrediente 2", ...], "preparacion": "pasos de preparación numerados"}. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro.` 
-                                }
-                            ],
-                        })
-                    });
+    setIsSearching(true);
+    try {
+        // URL base da API
+        const apiUrl = "https://api.anthropic.com/v1/messages";
+        
+        // Adicionar proxy se necessário (para GitHub Pages)
+        const finalUrl = useProxy 
+            ? `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`
+            : apiUrl;
 
-                    if (!response.ok) {
-                        throw new Error('Error en la API');
+        const response = await fetch(finalUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": apiKey,
+                "anthropic-version": "2023-06-01"
+            },
+            body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 1000,
+                messages: [
+                    { 
+                        role: "user", 
+                        content: `Dame la receta completa de "${searchQuery}". Si es un plato español, dame la receta tradicional. Responde SOLO con un objeto JSON en este formato: {"nombre": "nombre del plato", "ingredientes": ["ingrediente 1", "ingrediente 2", ...], "preparacion": "pasos de preparación numerados"}. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro.` 
                     }
+                ],
+            })
+        });
 
-                    const data = await response.json();
-                    const text = data.content.find(item => item.type === "text")?.text || "";
-                    const clean = text.replace(/```json|```/g, "").trim();
-                    const receta = JSON.parse(clean);
-                    
-                    if (receta && receta.nombre && receta.ingredientes && receta.preparacion) {
-                        const newRecipes = {...recipes, [receta.nombre]: {
-                            ingredientes: receta.ingredientes,
-                            preparacion: receta.preparacion
-                        }};
-                        setRecipes(newRecipes);
-                        
-                        const recipesToSave = {};
-                        Object.keys(newRecipes).forEach(key => {
-                            if (!recetasIniciales[key]) {
-                                recipesToSave[key] = newRecipes[key];
-                            }
-                        });
-                        localStorage.setItem('saved_recipes', JSON.stringify(recipesToSave));
-                        
-                        alert(`¡Receta "${receta.nombre}" añadida y guardada correctamente!`);
-                        setSearchQuery('');
-                    }
-                } catch (error) {
-                    alert('Error al buscar la receta. Verifica tu API Key.');
+        if (!response.ok) {
+            throw new Error('Error en la API');
+        }
+
+        const data = await response.json();
+        const text = data.content.find(item => item.type === "text")?.text || "";
+        const clean = text.replace(/```json|```/g, "").trim();
+        const receta = JSON.parse(clean);
+        
+        if (receta && receta.nombre && receta.ingredientes && receta.preparacion) {
+            const newRecipes = {...recipes, [receta.nombre]: {
+                ingredientes: receta.ingredientes,
+                preparacion: receta.preparacion
+            }};
+            setRecipes(newRecipes);
+            
+            const recipesToSave = {};
+            Object.keys(newRecipes).forEach(key => {
+                if (!recetasIniciales[key]) {
+                    recipesToSave[key] = newRecipes[key];
                 }
-                setIsSearching(false);
-            };
+            });
+            localStorage.setItem('saved_recipes', JSON.stringify(recipesToSave));
+            
+            alert(`¡Receta "${receta.nombre}" añadida y guardada correctamente!`);
+            setSearchQuery('');
+        }
+    } catch (error) {
+        alert('Error al buscar la receta. Verifica tu API Key.');
+    }
+    setIsSearching(false);
+};
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-orange-50 p-6">
