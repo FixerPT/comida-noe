@@ -4,6 +4,605 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planificador de Comidas da Noelinha</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Iconos SVG
+        const Calendar = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        );
+
+        const ShoppingCart = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+        );
+
+        const ChefHat = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+        );
+
+        const Trash2 = () => (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
+
+        const Lightbulb = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+        );
+
+        const X = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        );
+
+        const Search = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        );
+
+        const Settings = () => (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        );
+
+        const Eye = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+        );
+
+        const EyeOff = () => (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+        );
+
+        const MealPlanner = () => {
+            const [meals, setMeals] = useState({});
+            const [shoppingList, setShoppingList] = useState([]);
+            const [selectedMeal, setSelectedMeal] = useState(null);
+            const [activeTab, setActiveTab] = useState('planner');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [apiKey, setApiKey] = useState('');
+            const [showApiKey, setShowApiKey] = useState(false);
+            const [showSettings, setShowSettings] = useState(false);
+            
+            const recetasIniciales = {
+                'Paella Valenciana': {
+                    ingredientes: ['400g arroz', '300g pollo', '200g conejo', '100g judías verdes', '100g garrofón', 'Azafrán', 'Aceite de oliva', 'Sal'],
+                    preparacion: '1. Sofreír el pollo y el conejo en la paella\n2. Añadir las judías verdes y el garrofón\n3. Añadir el arroz y rehogar\n4. Añadir agua caliente con azafrán\n5. Cocinar a fuego medio-alto durante 18-20 minutos'
+                },
+                'Tortilla Española': {
+                    ingredientes: ['6 huevos', '4 patatas grandes', '1 cebolla', 'Aceite de oliva', 'Sal'],
+                    preparacion: '1. Pelar y cortar las patatas en rodajas finas\n2. Freír las patatas y la cebolla en abundante aceite\n3. Batir los huevos y mezclar con las patatas escurridas\n4. Cuajar en la sartén por ambos lados\n5. Servir caliente o fría'
+                },
+                'Gazpacho Andaluz': {
+                    ingredientes: ['1kg tomates maduros', '1 pimiento verde', '1 pepino', '1 diente de ajo', 'Pan del día anterior', 'Vinagre', 'Aceite de oliva', 'Sal'],
+                    preparacion: '1. Lavar y trocear las verduras\n2. Remojar el pan en agua\n3. Triturar todo junto con aceite, vinagre y sal\n4. Pasar por el colador\n5. Enfriar en la nevera y servir bien frío'
+                },
+                'Cocido Madrileño': {
+                    ingredientes: ['400g garbanzos', '300g morcillo de ternera', '200g tocino', '1 hueso de jamón', '2 patatas', '2 zanahorias', 'Repollo', 'Fideos'],
+                    preparacion: '1. Poner los garbanzos en remojo la noche anterior\n2. Cocer los garbanzos con las carnes y el hueso\n3. Añadir las verduras cuando los garbanzos estén tiernos\n4. Separar el caldo para la sopa de fideos\n5. Servir primero la sopa, luego los garbanzos y por último la carne'
+                },
+                'Pulpo a la Gallega': {
+                    ingredientes: ['1 pulpo (1-1.5kg)', 'Patatas', 'Pimentón dulce y picante', 'Aceite de oliva virgen extra', 'Sal gorda'],
+                    preparacion: '1. Cocer el pulpo en agua hirviendo (asustarlo 3 veces)\n2. Cocinar 40-50 minutos hasta que esté tierno\n3. Cocer las patatas en el mismo agua\n4. Cortar el pulpo en rodajas y las patatas en cachelos\n5. Espolvorear con pimentón y aceite de oliva'
+                }
+            };
+            
+            const [recipes, setRecipes] = useState(recetasIniciales);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [isSearching, setIsSearching] = useState(false);
+
+            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const tiposComida = ['Desayuno', 'Comida', 'Cena'];
+
+            useEffect(() => {
+                const savedApiKey = localStorage.getItem('anthropic_api_key');
+                if (savedApiKey) {
+                    setApiKey(savedApiKey);
+                }
+                
+                const savedRecipes = localStorage.getItem('saved_recipes');
+                if (savedRecipes) {
+                    try {
+                        const parsed = JSON.parse(savedRecipes);
+                        setRecipes({...recetasIniciales, ...parsed});
+                    } catch (e) {
+                        console.error('Error cargando recetas guardadas');
+                    }
+                }
+            }, []);
+
+            const saveApiKey = () => {
+                if (apiKey.trim()) {
+                    localStorage.setItem('anthropic_api_key', apiKey.trim());
+                    setShowSettings(false);
+                    alert('API Key guardada correctamente');
+                }
+            };
+
+            const clearApiKey = () => {
+                localStorage.removeItem('anthropic_api_key');
+                setApiKey('');
+                alert('API Key eliminada');
+            };
+
+            const adicionarComida = (dia, tipo, nombre) => {
+                const key = `${dia}-${tipo}`;
+                setMeals({...meals, [key]: nombre});
+            };
+
+            const removerComida = (dia, tipo) => {
+                const key = `${dia}-${tipo}`;
+                const newMeals = {...meals};
+                delete newMeals[key];
+                setMeals(newMeals);
+            };
+
+            const generarListaCompra = () => {
+                const ingredientes = new Set();
+                Object.values(meals).forEach(mealName => {
+                    if (recipes[mealName]) {
+                        recipes[mealName].ingredientes.forEach(ing => ingredientes.add(ing));
+                    }
+                });
+                setShoppingList(Array.from(ingredientes));
+            };
+
+            const generarIdeas = async () => {
+                if (!apiKey) {
+                    alert('Por favor, configura tu API Key de Anthropic en Ajustes');
+                    setShowSettings(true);
+                    return;
+                }
+
+                setIsGenerating(true);
+                try {
+                    const response = await fetch("https://api.anthropic.com/v1/messages", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "x-api-key": apiKey,
+                            "anthropic-version": "2023-06-01"
+                        },
+                        body: JSON.stringify({
+                            model: "claude-sonnet-4-20250514",
+                            max_tokens: 1000,
+                            messages: [
+                                { 
+                                    role: "user", 
+                                    content: "Dame 5 ideas de recetas típicas españolas saludables y equilibradas para la semana. Incluye variedad de platos de diferentes regiones de España. Responde SOLO con un array JSON en este formato: [{\"nombre\": \"nombre del plato\", \"tipo\": \"comida o cena\", \"descripcion\": \"breve descripción\"}]. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro." 
+                                }
+                            ],
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error en la API');
+                    }
+
+                    const data = await response.json();
+                    const text = data.content.find(item => item.type === "text")?.text || "";
+                    const clean = text.replace(/```json|```/g, "").trim();
+                    const ideas = JSON.parse(clean);
+                    
+                    alert(`Ideas generadas:\n\n${ideas.map((i, idx) => `${idx + 1}. ${i.nombre} (${i.tipo})\n   ${i.descripcion}`).join('\n\n')}\n\n¡Busca estas recetas para añadirlas a tu planificador!`);
+                } catch (error) {
+                    alert('Error al generar ideas. Verifica tu API Key.');
+                }
+                setIsGenerating(false);
+            };
+
+            const buscarReceta = async () => {
+                if (!apiKey) {
+                    alert('Por favor, configura tu API Key de Anthropic en Ajustes');
+                    setShowSettings(true);
+                    return;
+                }
+
+                if (!searchQuery.trim()) {
+                    alert('Por favor, escribe el nombre de una receta');
+                    return;
+                }
+
+                setIsSearching(true);
+                try {
+                    const response = await fetch("https://api.anthropic.com/v1/messages", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "x-api-key": apiKey,
+                            "anthropic-version": "2023-06-01"
+                        },
+                        body: JSON.stringify({
+                            model: "claude-sonnet-4-20250514",
+                            max_tokens: 1000,
+                            messages: [
+                                { 
+                                    role: "user", 
+                                    content: `Dame la receta completa de "${searchQuery}". Si es un plato español, dame la receta tradicional. Responde SOLO con un objeto JSON en este formato: {"nombre": "nombre del plato", "ingredientes": ["ingrediente 1", "ingrediente 2", ...], "preparacion": "pasos de preparación numerados"}. No incluyas ningún texto adicional, markdown o preámbulo, solo el JSON puro.` 
+                                }
+                            ],
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error en la API');
+                    }
+
+                    const data = await response.json();
+                    const text = data.content.find(item => item.type === "text")?.text || "";
+                    const clean = text.replace(/```json|```/g, "").trim();
+                    const receta = JSON.parse(clean);
+                    
+                    if (receta && receta.nombre && receta.ingredientes && receta.preparacion) {
+                        const newRecipes = {...recipes, [receta.nombre]: {
+                            ingredientes: receta.ingredientes,
+                            preparacion: receta.preparacion
+                        }};
+                        setRecipes(newRecipes);
+                        
+                        const recipesToSave = {};
+                        Object.keys(newRecipes).forEach(key => {
+                            if (!recetasIniciales[key]) {
+                                recipesToSave[key] = newRecipes[key];
+                            }
+                        });
+                        localStorage.setItem('saved_recipes', JSON.stringify(recipesToSave));
+                        
+                        alert(`¡Receta "${receta.nombre}" añadida y guardada correctamente!`);
+                        setSearchQuery('');
+                    }
+                } catch (error) {
+                    alert('Error al buscar la receta. Verifica tu API Key.');
+                }
+                setIsSearching(false);
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-red-50 via-yellow-50 to-orange-50 p-6">
+                    <div className="max-w-7xl mx-auto">
+                        <header className="text-center mb-8">
+                            <div className="flex items-center justify-center gap-3 mb-2">
+                                <ChefHat />
+                                <h1 className="text-4xl font-bold text-gray-800">Planificador de Comidas da Noelinha</h1>
+                                <button
+                                    onClick={() => setShowSettings(true)}
+                                    className="ml-4 p-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition"
+                                    title="Configuración"
+                                >
+                                    <Settings />
+                                </button>
+                            </div>
+                            <p className="text-gray-600">Planifica tus comidas, genera listas de compra y descubre recetas españolas</p>
+                            {!apiKey && (
+                                <div className="mt-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-lg inline-block">
+                                    ⚠️ Configura tu API Key para usar las funciones de IA
+                                </div>
+                            )}
+                        </header>
+
+                        <div className="flex gap-2 mb-6 justify-center flex-wrap">
+                            <button
+                                onClick={() => setActiveTab('planner')}
+                                className={`px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 ${
+                                    activeTab === 'planner' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-red-100'
+                                }`}
+                            >
+                                <Calendar />
+                                Planificador
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('shopping')}
+                                className={`px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 ${
+                                    activeTab === 'shopping' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-red-100'
+                                }`}
+                            >
+                                <ShoppingCart />
+                                Lista de la Compra
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('recipes')}
+                                className={`px-6 py-3 rounded-lg font-medium transition flex items-center gap-2 ${
+                                    activeTab === 'recipes' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-red-100'
+                                }`}
+                            >
+                                <ChefHat />
+                                Recetas
+                            </button>
+                        </div>
+
+                        {activeTab === 'planner' && (
+                            <div className="bg-white rounded-2xl shadow-lg p-6">
+                                <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+                                    <h2 className="text-2xl font-bold text-gray-800">Semana</h2>
+                                    <button
+                                        onClick={generarIdeas}
+                                        disabled={isGenerating || !apiKey}
+                                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition flex items-center gap-2 disabled:bg-gray-400"
+                                    >
+                                        <Lightbulb />
+                                        {isGenerating ? 'Generando...' : 'Generar Ideas con IA'}
+                                    </button>
+                                </div>
+                                
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b-2 border-gray-200">
+                                                <th className="p-3 text-left font-semibold text-gray-700">Día</th>
+                                                {tiposComida.map(tipo => (
+                                                    <th key={tipo} className="p-3 text-left font-semibold text-gray-700">{tipo}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {diasSemana.map(dia => (
+                                                <tr key={dia} className="border-b border-gray-100 hover:bg-red-50 transition">
+                                                    <td className="p-3 font-medium text-gray-800">{dia}</td>
+                                                    {tiposComida.map(tipo => {
+                                                        const key = `${dia}-${tipo}`;
+                                                        const meal = meals[key];
+                                                        return (
+                                                            <td key={tipo} className="p-3">
+                                                                {meal ? (
+                                                                    <div className="flex items-center justify-between bg-red-100 rounded-lg p-2">
+                                                                        <span className="text-sm">{meal}</span>
+                                                                        <button
+                                                                            onClick={() => removerComida(dia, tipo)}
+                                                                            className="text-red-600 hover:text-red-800"
+                                                                        >
+                                                                            <Trash2 />
+                                                                        </button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <select
+                                                                        onChange={(e) => {
+                                                                            if (e.target.value) {
+                                                                                adicionarComida(dia, tipo, e.target.value);
+                                                                                e.target.value = '';
+                                                                            }
+                                                                        }}
+                                                                        className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                                                    >
+                                                                        <option value="">+ Añadir</option>
+                                                                        {Object.keys(recipes).map(nombre => (
+                                                                            <option key={nombre} value={nombre}>{nombre}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                )}
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'shopping' && (
+                            <div className="bg-white rounded-2xl shadow-lg p-6">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">Lista de la Compra</h2>
+                                <button
+                                    onClick={generarListaCompra}
+                                    className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition mb-6 flex items-center gap-2"
+                                >
+                                    <ShoppingCart />
+                                    Generar Lista de la Compra
+                                </button>
+
+                                {shoppingList.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        {shoppingList.map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
+                                                <input type="checkbox" className="w-5 h-5 text-red-600" />
+                                                <span className="text-gray-800">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500 text-center py-8">
+                                        Planifica tus comidas primero y después genera la lista de la compra
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'recipes' && (
+                            <div className="bg-white rounded-2xl shadow-lg p-6">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">Recetas Españolas</h2>
+                                
+                                <div className="mb-6 flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && buscarReceta()}
+                                        placeholder="Buscar receta (ej: Fabada Asturiana, Crema Catalana...)"
+                                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        onClick={buscarReceta}
+                                        disabled={isSearching || !apiKey}
+                                        className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition flex items-center gap-2 disabled:bg-gray-400"
+                                    >
+                                        <Search />
+                                        {isSearching ? 'Buscando...' : 'Buscar'}
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {Object.entries(recipes).map(([nombre, receta]) => (
+                                        <div
+                                            key={nombre}
+                                            onClick={() => setSelectedMeal(nombre)}
+                                            className="bg-gradient-to-br from-red-50 to-yellow-50 rounded-xl p-5 cursor-pointer hover:shadow-lg transition border-2 border-transparent hover:border-red-300"
+                                        >
+                                            <h3 className="text-xl font-bold text-gray-800 mb-3">{nombre}</h3>
+                                            <div className="mb-3">
+                                                <p className="font-semibold text-gray-700 mb-2">Ingredientes:</p>
+                                                <ul className="text-sm text-gray-600 space-y-1">
+                                                    {receta.ingredientes.slice(0, 3).map((ing, idx) => (
+                                                        <li key={idx}>• {ing}</li>
+                                                    ))}
+                                                    {receta.ingredientes.length > 3 && (
+                                                        <li className="text-red-600">+ {receta.ingredientes.length - 3} más...</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                            <button className="text-red-600 font-medium hover:text-red-700">
+                                                Ver receta completa →
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedMeal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                <div className="bg-white rounded-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <h3 className="text-3xl font-bold text-gray-800">{selectedMeal}</h3>
+                                        <button
+                                            onClick={() => setSelectedMeal(null)}
+                                            className="text-gray-500 hover:text-gray-700"
+                                        >
+                                            <X />
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="mb-6">
+                                        <h4 className="text-xl font-bold text-gray-800 mb-3">Ingredientes</h4>
+                                        <ul className="space-y-2">
+                                            {recipes[selectedMeal].ingredientes.map((ing, idx) => (
+                                                <li key={idx} className="flex items-center gap-2 text-gray-700">
+                                                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                                                    {ing}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="text-xl font-bold text-gray-800 mb-3">Preparación</h4>
+                                        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                                            {recipes[selectedMeal].preparacion}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {showSettings && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                <div className="bg-white rounded-2xl max-w-lg w-full p-8">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <h3 className="text-2xl font-bold text-gray-800">Configuración de API</h3>
+                                        <button
+                                            onClick={() => setShowSettings(false)}
+                                            className="text-gray-500 hover:text-gray-700"
+                                        >
+                                            <X />
+                                        </button>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            API Key de Anthropic
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type={showApiKey ? "text" : "password"}
+                                                value={apiKey}
+                                                onChange={(e) => setApiKey(e.target.value)}
+                                                placeholder="sk-ant-..."
+                                                className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                            />
+                                            <button
+                                                onClick={() => setShowApiKey(!showApiKey)}
+                                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                            >
+                                                {showApiKey ? <EyeOff /> : <Eye />}
+                                            </button>
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            Obtén tu API Key en{' '}
+                                            <a 
+                                                href="https://console.anthropic.com" 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="text-red-600 hover:underline"
+                                            >
+                                                console.anthropic.com
+                                            </a>
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                        <p className="text-sm text-blue-800">
+                                            <strong>Nota de seguridad:</strong> Tu API Key se guarda localmente en tu navegador 
+                                            y nunca se comparte. Solo se usa para comunicarse directamente con la API de Anthropic.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={saveApiKey}
+                                            className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-medium"
+                                        >
+                                            Guardar
+                                        </button>
+                                        {apiKey && (
+                                            <button
+                                                onClick={clearApiKey}
+                                                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition font-medium"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<MealPlanner />, document.getElementById('root'));
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Comidas da Noelinha</title>
 
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
